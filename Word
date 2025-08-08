@@ -1,6 +1,9 @@
+import random
+
 def word_guessing():
    
-    word = 'software'
+    word_list = ['python', 'software', 'engeering', 'professional']
+    word = random.choice(word_list)
     blanks = ['_'] * len(word)
     lives = 10
 
