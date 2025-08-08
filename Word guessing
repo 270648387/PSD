@@ -1,0 +1,34 @@
+import random
+
+def word_guessing():
+    word = ['python']
+    blanks = ['_'] * len(word)
+    lives = 10
+
+    print("Word Guessing")
+    print("You have", lives, "lives.")
+
+    while True:
+        print("\nWord:", ' '.join(blanks))
+        guess = input("Guess a letter: ").lower()
+
+        if guess in word:
+            for i, letter in enumerate(word):
+                if letter == guess:
+                    blanks[i] = guess
+        else:
+            lives -= 1
+            print("Wrong guess! Lives left:", lives)
+
+        if '_' not in blanks:
+            print("\nCongratulations! You guessed the word:", word)
+            print("GAME OVER")
+            break
+
+        if lives == 0:
+            print("\nYou ran out of lives. The word was:", word)
+            print("GAME OVER")
+            break
+
+# Call the function to start the game
+word_guessing()

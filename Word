@@ -1,0 +1,31 @@
+def word_guessing():
+   
+    word = 'software'
+    blanks = ['_'] * len(word)
+    lives = 10
+
+    print("Word Guessing")
+    print("You have", lives, "lives")
+    
+    while True:
+        print("\nWord:", ' '.join(blanks))
+        guess = input("\nGuess a letter: ")
+
+        if guess in word:
+            for i, letter in enumerate(word):
+                if letter == guess:
+                    blanks[i] = guess
+        else:
+            lives -= 1
+            print("\nWrong guess! Lives left:", lives)
+
+        if '_' not in blanks:
+            print("\nCongrats! You guessed the word:", word)
+            print("GAME OVER")
+            break
+
+        if lives == 0:
+            print("\nGAME OVER. The word was:", word)
+            break
+
+word_guessing()
