@@ -3,18 +3,18 @@ import random
 def word_guessing():
     word_list = ['python', 'software', 'engineering', 'professional']
 
-    while True:  # Outer loop to restart the game
+    while True:  # Outer loop to allow replay
         word = random.choice(word_list)
         blanks = ['_'] * len(word)
         lives = 10
 
-        print("\nNew Word Guessing Game!")
+        print("\nWord Guessing")
         print("You have", lives, "lives")
-        print("The Word has", len(word), "letters" )
+        print("The word has", len(word), "letters")
 
-        while True:
+        while True:  # Inner loop for one game
             print("\nWord:", ' '.join(blanks))
-            guess = input("Guess a letter: ").lower()
+            guess = input("\nGuess a letter: ").lower()
 
             if guess in word:
                 for i, letter in enumerate(word):
@@ -25,17 +25,19 @@ def word_guessing():
                 print("Wrong guess! Lives left:", lives)
 
             if '_' not in blanks:
-                print("\n🎉 Congrats! You guessed the word:", word)
+                print("\nCongrats! You guessed the word:", word)
+                print("GAME OVER")
                 break
 
             if lives == 0:
-                print("\n💀 GAME OVER. The word was:", word)
+                print("\nGAME OVER. The word was:", word)
                 break
 
-        # Ask if the user wants to play again
+        # Ask to play again
         play_again = input("\nDo you want to play again? (y/n): ").lower()
         if play_again != 'y':
             print("Thanks for playing!")
             break
 
+# Run the game
 word_guessing()
