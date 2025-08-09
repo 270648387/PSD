@@ -4,7 +4,7 @@ class StringManipulator:
 
     def find_char(self,char):
         pos = self.text.find(char)
-        return f"Position: {pos}" if pos != -1 else "Character not found"
+        return(f"Position: {pos}" if pos != -1 else "Character not found")
     
     def show_leng(self):
         return(f"Length:{len(self.text)}")
