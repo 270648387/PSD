@@ -1,0 +1,19 @@
+class StringManipulator:
+    def find_char(self, text, char):
+        return text.find(char)
+    
+    def show_leng(self, text):
+        return len(text)
+
+    def upper(self, text):
+        return text.upper()
+    
+
+name = StringManipulator()
+
+text_value = "example"
+result = name.find_char(text_value, 'x')
+leng = name.show_leng(text_value)
+upper = name.upper(text_value)
+
+print(result, leng, upper)
