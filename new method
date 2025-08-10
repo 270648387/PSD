@@ -1,19 +1,20 @@
-class StringManipulator:
-    def find_char(self, text, char):
-        return text.find(char)
+class StringProcess:
+    def __init__(self,sentence=""):
+        self.sentence = sentence.strip()
+
+    def get_sentence(self):
+        self.sentence = input("Enter a sentence:").strip()
+
+    def count_words(self):
+        words = self.sentence.split()
+        return len(words)
     
-    def show_leng(self, text):
-        return len(text)
+    def display_count(self):
+        count = self.count_words()
+        print(f"Sentence:\"{self.sentence}\"")
+        print(f"Number of words:{self.count_words()}")
 
-    def upper(self, text):
-        return text.upper()
-    
-
-name = StringManipulator()
-
-text_value = "example"
-result = name.find_char(text_value, 'x')
-leng = name.show_leng(text_value)
-upper = name.upper(text_value)
-
-print(result, leng, upper)
+if __name__ == "__main__":
+    process = StringProcess()
+    process.get_sentence()
+    process.display_count()
