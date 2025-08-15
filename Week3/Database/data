@@ -1,0 +1,22 @@
+import pandas as pd
+
+class DemoFile:
+    def __init__(self, filename):
+        self.filename = filename
+    
+    def caculate(self):
+        reader = pd.read_csv(self.filename, sep=';')
+        print(f"maximum: {reader['alcohol'].max():.2f}\n")
+        print(f"minimum: {reader['alcohol'].min():.2f}\n")
+        print(f"average: {reader['alcohol'].mean():.2f}\n")
+        print(reader['alcohol'].abs())
+            
+
+
+def main():
+    demoFile = DemoFile(r"C:\Users\Y\Documents\GitHub\PSD\Week3\Database\data.csv")
+    demoFile.caculate()
+
+
+if __name__ == "__main__":
+    main()
