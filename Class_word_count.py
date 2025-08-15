@@ -1,9 +1,9 @@
 class WordCounter:
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self, filepath):
+        self.filepath = filepath
 
     def count_words(self):
-        with open(self.filename, "r", encoding="utf-8") as f:
+        with open(self.filepath, "r", encoding="utf-8") as f:
                 content = f.read()
 
         words = content.split()
