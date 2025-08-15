@@ -9,8 +9,8 @@ def main():
     with open(output_path, "w", encoding="utf-8") as outfile:
         outfile.write("Hello World !\n")
 
-    with open(input_path, "a", encoding="utf-8") as outfile1:
-        outfile1.write("Hello World Again!\n")
+    with open(output_path_1, "a", encoding="utf-8") as outfile_1:
+        outfile_1.write("Hello World Again!\n")
     
     print(f"File '{output_path}' created with first line.")
     print(f"File '{output_path_1}' appended with second line.")
