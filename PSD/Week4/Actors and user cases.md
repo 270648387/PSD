@@ -23,7 +23,7 @@ Use Cases
         Generate reports
 
 
-![alt text](image.png)
+![alt text](use_case_diagram.png)
 
 
 Description:
