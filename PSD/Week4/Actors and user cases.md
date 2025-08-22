@@ -1,9 +1,11 @@
 Actors
+    
     Student
     Lecturer
     Admin
 
 Use Cases
+    
     Student 
         Update Profile
         Attend Class
