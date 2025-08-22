@@ -21,7 +21,7 @@ Use Cases
         Generate reports
 
 
-c:\Users\Y\Downloads\use_case_diagram.png
+![alt text](image.png)
 
 
 
