@@ -1,0 +1,28 @@
+# Library Management System - Python Dependencies
+# This file lists all required Python packages and their versions
+
+# Core Python packages (usually included with Python 3.6+)
+# No external packages required - uses only standard library
+
+# Python version requirement
+# Python >= 3.6
+
+# Standard library modules used:
+# - datetime: For date and time operations
+# - enum: For genre enumeration
+# - typing: For type hints
+# - uuid: For generating unique identifiers
+# - sys: For system-specific parameters and functions
+
+# Optional packages for enhanced functionality (not required for basic operation):
+# - pytest: For running tests (if you want to add unit tests)
+# - black: For code formatting
+# - flake8: For code linting
+# - mypy: For static type checking
+
+# To install optional packages (if desired):
+# pip install pytest black flake8 mypy
+
+# For development and testing:
+# pip install -r requirements.txt
+

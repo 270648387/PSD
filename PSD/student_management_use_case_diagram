@@ -1,0 +1,29 @@
+// Student Management System - Use Case Diagram
+digraph {
+	rankdir=TB
+	node [fillcolor=lightblue shape=ellipse style=filled]
+	UC01 [label="Update Profile"]
+	UC02 [label="Attend Class"]
+	UC03 [label="Enroll Subject"]
+	UC04 [label="Teach Class"]
+	UC05 [label="Teach Subject"]
+	UC06 [label="Grade Assignment"]
+	UC07 [label="Design Timetable"]
+	UC08 [label="Allocate Classrooms"]
+	UC09 [label="Generate Reports"]
+	node [fillcolor=lightgreen shape=rectangle style=filled]
+	Student [label=Student]
+	Lecturer [label=Lecturer]
+	Admin [label=Admin]
+	Student -> UC01
+	Student -> UC02
+	Student -> UC03
+	Lecturer -> UC04
+	Lecturer -> UC05
+	Lecturer -> UC06
+	Admin -> UC07
+	Admin -> UC08
+	Admin -> UC09
+	node [fillcolor=white label="" shape=rectangle style=dashed]
+	System [label="Student Management System"]
+}

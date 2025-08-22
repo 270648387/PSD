@@ -1,0 +1,71 @@
+@startuml Library Management System - Book Borrowing Sequence Diagram
+
+!theme plain
+skinparam sequenceFontSize 10
+skinparam participantFontSize 10
+
+actor Member as M
+participant "LibrarySystem" as LS
+participant "Member" as MEM
+participant "Book" as B
+participant "BorrowRecord" as BR
+participant "Fine" as F
+
+M -> LS: borrowBook(bookId, memberId)
+activate LS
+
+LS -> MEM: getMemberId()
+activate MEM
+MEM --> LS: memberId
+deactivate MEM
+
+LS -> MEM: canBorrowBook()
+activate MEM
+MEM --> LS: true/false
+deactivate MEM
+
+alt can borrow book
+    LS -> B: getBookId()
+    activate B
+    B --> LS: bookId
+    deactivate B
+    
+    LS -> B: isAvailable()
+    activate B
+    B --> LS: true/false
+    deactivate B
+    
+    alt book is available
+        LS -> B: decreaseAvailableCopies()
+        activate B
+        B --> LS: void
+        deactivate B
+        
+        LS -> MEM: borrowBook()
+        activate MEM
+        MEM --> LS: void
+        deactivate MEM
+        
+        LS -> BR: new BorrowRecord(bookId, memberId)
+        activate BR
+        BR --> LS: borrowRecord
+        deactivate BR
+        
+        LS -> LS: addBorrowRecord(borrowRecord)
+        
+        LS --> M: BorrowRecord (success)
+        
+    else book not available
+        LS --> M: Error: Book not available
+    end
+    
+else cannot borrow book
+    LS --> M: Error: Cannot borrow (limit reached or expired membership)
+end
+
+deactivate LS
+
+note over M, F : "Borrowing process includes validation,\nbook availability check, and record creation"
+
+@enduml
+

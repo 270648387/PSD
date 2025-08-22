@@ -1,0 +1,64 @@
+@startuml Library Management System - Book Return Activity Diagram
+
+!theme plain
+skinparam activityFontSize 10
+skinparam activityDiamondFontSize 10
+
+start
+
+:Member returns book;
+:Scan book barcode;
+:Retrieve borrow record;
+
+if (Borrow record found?) then (yes)
+    :Check return date;
+    
+    if (Book is overdue?) then (yes)
+        :Calculate fine amount;
+        :Fine = (Current Date - Due Date) × Daily Rate;
+        :Create fine record;
+        :Notify member of fine;
+    else (no)
+        :No fine applicable;
+    endif
+    
+    :Update book availability;
+    :Increase available copies;
+    :Mark borrow record as returned;
+    :Set return date;
+    :Update member's borrowed book count;
+    
+    if (Fine exists?) then (yes)
+        :Display fine amount;
+        :Process fine payment;
+        
+        if (Payment successful?) then (yes)
+            :Mark fine as paid;
+            :Record payment date;
+        else (no)
+            :Keep fine as unpaid;
+            :Add to member's outstanding fines;
+        endif
+        
+    else (no)
+        :No payment needed;
+    endif
+    
+    :Print return receipt;
+    :Update inventory;
+    
+else (no)
+    :Display error: No borrow record found;
+    :Contact librarian;
+endif
+
+:End process;
+
+stop
+
+note right of "Calculate fine amount" : "Fine calculation:\n$1.00 per day overdue"
+note right of "Update book availability" : "Book becomes available\nfor other members"
+note right of "Process fine payment" : "Can be paid immediately\nor added to account"
+
+@enduml
+

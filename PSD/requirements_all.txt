@@ -1,0 +1,31 @@
+# Student Management System - Use Case Diagram Generator
+# Complete requirements for all versions
+
+# Core dependencies for visual diagrams
+graphviz>=0.20.1          # For Graphviz version
+matplotlib>=3.5.0          # For Matplotlib version
+numpy>=1.21.0              # Required by matplotlib
+
+# Enhanced diagram features (optional)
+networkx>=2.8.0            # For advanced graph operations
+pillow>=8.0.0              # For enhanced image processing
+
+# Development and testing (optional)
+pytest>=6.0.0              # For running tests
+black>=21.0.0              # For code formatting
+flake8>=3.9.0              # For code linting
+
+# Installation instructions:
+# pip install -r requirements_all.txt
+# 
+# For minimal installation (text version only):
+# pip install --no-deps -r requirements_all.txt
+# 
+# For specific versions:
+# pip install graphviz matplotlib numpy
+# 
+# Note: Graphviz system package may be required for graphviz version:
+# - Windows: Download from https://graphviz.org/download/
+# - macOS: brew install graphviz
+# - Ubuntu/Debian: sudo apt-get install graphviz
+# - CentOS/RHEL: sudo yum install graphviz

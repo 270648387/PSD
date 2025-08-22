@@ -1,0 +1,134 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+简单计算器
+支持基本的数学运算：加、减、乘、除、幂运算、平方根等
+"""
+
+import math
+import sys
+
+def add(a, b):
+    """加法运算"""
+    return a + b
+
+def subtract(a, b):
+    """减法运算"""
+    return a - b
+
+def multiply(a, b):
+    """乘法运算"""
+    return a * b
+
+def divide(a, b):
+    """除法运算"""
+    if b == 0:
+        raise ValueError("错误：除数不能为零！")
+    return a / b
+
+def power(a, b):
+    """幂运算"""
+    return a ** b
+
+def square_root(a):
+    """平方根运算"""
+    if a < 0:
+        raise ValueError("错误：不能计算负数的平方根！")
+    return math.sqrt(a)
+
+def factorial(a):
+    """阶乘运算"""
+    if a < 0:
+        raise ValueError("错误：不能计算负数的阶乘！")
+    if a == 0:
+        return 1
+    if a > 20:
+        raise ValueError("错误：数字太大，无法计算阶乘！")
+    return math.factorial(int(a))
+
+def show_menu():
+    """显示计算器菜单"""
+    print("\n" + "="*40)
+    print("          简单计算器")
+    print("="*40)
+    print("1. 加法 (+)")
+    print("2. 减法 (-)")
+    print("3. 乘法 (*)")
+    print("4. 除法 (/)")
+    print("5. 幂运算 (**)")
+    print("6. 平方根 (√)")
+    print("7. 阶乘 (!)")
+    print("8. 退出")
+    print("="*40)
+
+def get_number(prompt):
+    """获取用户输入的数字"""
+    while True:
+        try:
+            return float(input(prompt))
+        except ValueError:
+            print("错误：请输入有效的数字！")
+
+def main():
+    """主函数"""
+    print("欢迎使用Python计算器！")
+    
+    while True:
+        show_menu()
+        choice = input("请选择操作 (1-8): ").strip()
+        
+        if choice == '8':
+            print("感谢使用，再见！")
+            sys.exit(0)
+        
+        try:
+            if choice in ['1', '2', '3', '4', '5']:
+                # 需要两个数字的运算
+                num1 = get_number("请输入第一个数字: ")
+                num2 = get_number("请输入第二个数字: ")
+                
+                if choice == '1':
+                    result = add(num1, num2)
+                    print(f"{num1} + {num2} = {result}")
+                elif choice == '2':
+                    result = subtract(num1, num2)
+                    print(f"{num1} - {num2} = {result}")
+                elif choice == '3':
+                    result = multiply(num1, num2)
+                    print(f"{num1} * {num2} = {result}")
+                elif choice == '4':
+                    result = divide(num1, num2)
+                    print(f"{num1} / {num2} = {result}")
+                elif choice == '5':
+                    result = power(num1, num2)
+                    print(f"{num1} ** {num2} = {result}")
+                    
+            elif choice in ['6', '7']:
+                # 只需要一个数字的运算
+                num = get_number("请输入数字: ")
+                
+                if choice == '6':
+                    result = square_root(num)
+                    print(f"√{num} = {result}")
+                elif choice == '7':
+                    result = factorial(num)
+                    print(f"{num}! = {result}")
+                    
+            else:
+                print("无效选择！请输入1-8之间的数字。")
+                
+        except ValueError as e:
+            print(f"计算错误：{e}")
+        except Exception as e:
+            print(f"发生未知错误：{e}")
+        
+        input("\n按回车键继续...")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n\n程序被用户中断。再见！")
+    except Exception as e:
+        print(f"\n程序发生错误：{e}")
+        input("按回车键退出...")
