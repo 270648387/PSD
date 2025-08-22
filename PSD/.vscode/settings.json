@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "yb college",
+            "database": "${workspaceFolder:PSD}/yb_college.db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}

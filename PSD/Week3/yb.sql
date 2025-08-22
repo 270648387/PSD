@@ -77,3 +77,8 @@ CREATE INDEX ix_ss_student        ON student_subject(student_id);
 CREATE INDEX ix_ss_subject        ON student_subject(subject_id);
 CREATE INDEX ix_lc_lecturer       ON lecturer_class(lecturer_id);
 CREATE INDEX ix_lc_class          ON lecturer_class(class_id);
+
+
+SELECT name 
+FROM sqlite_master 
+WHERE type='table';
