@@ -26,7 +26,7 @@ Use Cases
 ![alt text](image.png)
 
 
-
+Description:
         'Update Profile': 'Modify personal information, contact details, and preferences',
         'Attend Class': 'Participates in scheduled classroom sessions',
         'Enroll Subject': 'Registers for academic courses and modules',
