@@ -14,6 +14,7 @@ class Student(Person):
         self.student_id = student_id
     
     def display_info(self):
+        #overriding display_info from Person
         return f"|Student|  {super().display_info()}"
 
 class Staff(Person):
@@ -22,6 +23,7 @@ class Staff(Person):
         self.staff_id = staff_id
     
     def display_info(self):
+        #overriding display_info from Person
         return f"|Staff|  {super().display_info()}"
 
 if __name__ == "__main__":
