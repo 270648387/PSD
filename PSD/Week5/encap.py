@@ -46,9 +46,11 @@ class Teacher:
 
 t = Teacher('Bob', 'Python')
 
-print(t.name)
-print(t._subject)
-print(t.get_salary())
+print(t.name) # public, accessible​
+
+print(t._subject) # protected, discouraged
+
+print(t.get_salary()) #private
 
 t.set_salary(4000)
 
