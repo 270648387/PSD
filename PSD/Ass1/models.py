@@ -1,24 +1,26 @@
+### Showcasing the use of all OO concepts such as encapsulation, abstraction, inheritance and polymorphism
+
+
 import abc
 from datetime import date
-from database import DbManager
+
 
 class User(abc.ABC):
-    #  Use of abstraction
+
     def __init__(self, username, password, role):
         self._username = username
-        self._password = password   
-        self._role = role 
+        self._password = password
+        self._role = role
 
-    #  Use of encapsulation, add getter methods
+    #  Encapsulation, add getter methods
     def get_username(self):
         return self._username 
     
     def get_role(self):
-        return self._role 
-    
+        return self._role
+
     def check_password(self, password):
-        return self._password == password 
-    
+        return self._password == password
 
     @abc.abstractmethod
     def display_menu(self):
@@ -32,16 +34,14 @@ class Admin(User):
         super().__init__(username, password, "admin")
 
     def display_menu(self):
-        """Admin operation menu."""
         print("\n--- Admin Menu ---")
-        print("1. View All Cars")
-        print("2. Add Car")
-        print("3. Update Car Information")
-        print("4. Delete Car")
-        print("5. View All Rental Records")
-        print("6. Filter Rental Records by Status (pending, approved, rejected)")
-        print("7. Approve/Reject Rental Applications")
-        print("8. Logout")
+        print("1. View all cars")
+        print("2. Add car")
+        print("3. Update car information")
+        print("4. Delete car")
+        print("5. View all rental records")
+        print("6. Approve/Reject rental requests")
+        print("7. Logout")
         print("--------------------")
 
 
@@ -51,22 +51,19 @@ class Customer(User):
         super().__init__(username, password, "customer")
 
     def display_menu(self):
-        """Customer operation menu."""
         print("\n--- Customer Menu ---")
-        print("1. View All Available Cars")
-        print("2. Rent a Car")
-        print("3. View My Rental Records")
-        print("4. Return Car")
+        print("1. View all available cars")
+        print("2. Rent a car")
+        print("3. View my rental records")
+        print("4. Return car")
         print("5. Logout")
         print("------------------")
 
 
 class Car:
-    _db = DbManager()
 
     def __init__(self, car_id, make, model, year, mileage, available_now, min_rent_days, max_rent_days, daily_rate,
                  fuel_type):
-        # Encapsulate all car attributes
         self._car_id = car_id
         self._make = make
         self._model = model
@@ -78,23 +75,6 @@ class Car:
         self._daily_rate = float(daily_rate)
         self._fuel_type = fuel_type
 
-    @classmethod
-    def from_dict(cls, data):
-        """Create Car instance from database dictionary"""
-        return cls(
-            car_id=data['car_id'],
-            make=data['make'],
-            model=data['model'],
-            year=data['year'],
-            mileage=data['mileage'],
-            available_now=data['available_now'],
-            min_rent_days=data['min_rent_days'],
-            max_rent_days=data['max_rent_days'],
-            daily_rate=data['daily_rate'],
-            fuel_type=data['fuel_type']
-        )
-
-    # --- Encapsulation: Provide a series of getter and setter methods to control access to attributes ---
     def get_car_id(self):
         return self._car_id
 
@@ -124,6 +104,9 @@ class Car:
 
     def get_max_rent_days(self):
         return self._max_rent_days
+    
+    def get_fuel_type(self):
+        return self._fuel_type
 
     def update_details(self, make, model, year, mileage, daily_rate, availability):
         self._make = make
@@ -144,13 +127,14 @@ class Car:
 
 
 class Rental:
-    _db = DbManager()
+    _next_id = 1
 
     def __init__(self, customer_username, car_id, start_date, end_date, total_cost, additional_fees, rental_id=None):
         if rental_id:
             self._rental_id = rental_id
         else:
-            self._rental_id = self._db.get_next_rental_id()
+            self._rental_id = f"R-{Rental._next_id:03d}"
+            Rental._next_id += 1
         self._customer_username = customer_username
         self._car_id = car_id
         self._start_date = start_date
@@ -159,22 +143,6 @@ class Rental:
         self._additional_fees = additional_fees
         self._status = "pending"  # Status can be: pending, approved, rejected, returned
         self._return_date = None
-
-    @classmethod
-    def from_dict(cls, data):
-        """Create Rental instance from database dictionary"""
-        rental = cls(
-            customer_username=data['customer_username'],
-            car_id=data['car_id'],
-            start_date=date.fromisoformat(data['start_date']),
-            end_date=date.fromisoformat(data['end_date']),
-            total_cost=data['total_cost'],
-            additional_fees=data['additional_fees'],
-            rental_id=data['rental_id']
-        )
-        rental._status = data['status']
-        rental._return_date = date.fromisoformat(data['return_date']) if data.get('return_date') else None
-        return rental
 
     def get_rental_id(self):
         return self._rental_id
@@ -205,10 +173,4 @@ class Rental:
         return_info = f", Return Date: {self._return_date}" if self._return_date else ""
         return (f"Rental ID: {self._rental_id}, Customer: {self._customer_username}, "
                 f"Car ID: {self._car_id}, Rental Period: {self._start_date} to {self._end_date}, "
-                f"Total Cost: ${self._total_cost:.2f} (Additional Fees: ${self._additional_fees:.2f}), Status: {self._status}{return_info}")
-
-
-    
-
-
-    
+                f"Total Cost: ${self._total_cost:.2f}, Status: {self._status}{return_info}")

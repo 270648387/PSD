@@ -60,7 +60,7 @@ def create_tables():                                 #Creating all three tables
     conn.commit()
     conn.close()
 
-#Cars operations
+#Cars operations, importing car data from original csv file with all the colunms listed
 def import_cars_from_csv(csv_filename):
     conn = connect_db()
     cur = conn.cursor()
@@ -90,7 +90,7 @@ def import_cars_from_csv(csv_filename):
     conn.close()
 
 
-def get_all_cars_from_db():
+def get_all_cars_from_db():                      #return a list of all cars
     conn = connect_db()
     cur = conn.cursor()
     cur.execute('SELECT * FROM vehicles')
@@ -99,7 +99,7 @@ def get_all_cars_from_db():
     return rows
 
 
-def get_car_by_id_from_db(car_id):
+def get_car_by_id_from_db(car_id):               #return a single car accoring to its id
     conn = connect_db()
     cur = conn.cursor()
     cur.execute('SELECT * FROM vehicles WHERE car_id = ?', (car_id,))
@@ -107,6 +107,7 @@ def get_car_by_id_from_db(car_id):
     conn.close()
     return row
 
+##Adding, updating, or deleting car data 
 
 def insert_car_into_db(car_data):
     conn = connect_db()
@@ -169,8 +170,8 @@ def update_car_mileage_in_db(car_id, new_mileage):
     conn.close()
 
 
-# User database operations
-def insert_user_into_db(username, password, role):
+# User database operations, for registration and login details
+def insert_user_into_db(username, password, role):           #Creating new user login, storing in plain text to simplify the project.
     conn = connect_db()
     cur = conn.cursor()
     cur.execute('''
@@ -181,7 +182,7 @@ def insert_user_into_db(username, password, role):
     conn.close()
 
 
-def get_user_from_db(username):
+def get_user_from_db(username):                              #Fetching one user via username
     conn = connect_db()
     cur = conn.cursor()
     cur.execute('SELECT * FROM users WHERE username = ?', (username,))
@@ -190,7 +191,7 @@ def get_user_from_db(username):
     return row
 
 
-def get_all_users_from_db():
+def get_all_users_from_db():                                 #Fetching all users data
     conn = connect_db()
     cur = conn.cursor()
     cur.execute('SELECT * FROM users')
@@ -199,8 +200,8 @@ def get_all_users_from_db():
     return rows
 
 
-# Rental database operations
-def insert_rental_into_db(rental_data):
+# Rental database operations                                     
+def insert_rental_into_db(rental_data):                      #Creating new rental records, such as R-001, test, Car-001 etc                      
     conn = connect_db()
     cur = conn.cursor()
     cur.execute('''
@@ -214,7 +215,7 @@ def insert_rental_into_db(rental_data):
     conn.close()
 
 
-def get_all_rentals_from_db():
+def get_all_rentals_from_db():                               #Managing rental records in different ways
     conn = connect_db()
     cur = conn.cursor()
     cur.execute('SELECT * FROM rentals')
