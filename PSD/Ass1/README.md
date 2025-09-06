@@ -4,7 +4,7 @@
 ## No manual configurations are needed to run the project, requirements.txt is attached.
  
 ## How to run:
-  1. Ensure Python 3.8 or higher is installed.
+  1. Ensure Python 3.8 or higher is installed, tested on Python 3.13.5.
   2. Install required dependencies: pip install -r requirements.txt.
   3. Run the main file from the command line: python main.py.
   4. Follow the instructions in the console to operate the system.
