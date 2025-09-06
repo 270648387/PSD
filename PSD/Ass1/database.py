@@ -1,299 +1,262 @@
 import sqlite3
-import csv, os
-from datetime import date
-from typing import List, Optional, Tuple, Dict, Any
-from contextlib import closing
-from pathlib import Path
-
-#Manage database using SQLite
-class DbManager:
-    def __init__(self, db_path: str = "car_rental.db"):
-        self.db_path = db_path
-        self.init_database()
-    
-    def get_connection(self) -> sqlite3.Connection:   #get database connection
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row  
-        conn.execute("PRAGMA foreign_keys = ON")
-        return conn
-    
-    def init_database(self):                          #initialise setup database
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            
-            # Create the users table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS users (
-                    username TEXT PRIMARY KEY,
-                    password TEXT NOT NULL,
-                    role TEXT NOT NULL CHECK (role IN ('admin', 'customer'))
-                )
-            ''')
-
-            # Create the cars table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS cars (
-                    car_id TEXT PRIMARY KEY,
-                    make TEXT NOT NULL,
-                    model TEXT NOT NULL,
-                    year INTEGER NOT NULL,
-                    mileage INTEGER NOT NULL,
-                    available_now BOOLEAN NOT NULL,
-                    min_rent_days INTEGER NOT NULL,
-                    max_rent_days INTEGER NOT NULL,
-                    daily_rate REAL NOT NULL,
-                    fuel_type TEXT NOT NULL
-                )
-            ''')
-            
-            # Create the rentals table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS rentals (
-                    rental_id TEXT PRIMARY KEY,
-                    customer_username TEXT NOT NULL,
-                    car_id TEXT NOT NULL,
-                    start_date DATE NOT NULL,
-                    end_date DATE NOT NULL,
-                    total_cost REAL NOT NULL,
-                    additional_fees REAL NOT NULL,
-                    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'returned')),
-                    return_date DATE,
-                    FOREIGN KEY (customer_username) REFERENCES users(username),
-                    FOREIGN KEY (car_id) REFERENCES cars(car_id)
-                )
-            ''')
-            
-            # Create the rental IDs table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS sequences (
-                    name TEXT PRIMARY KEY,
-                    value INTEGER NOT NULL
-                )
-            ''')
-            cursor.execute('''
-                INSERT OR IGNORE INTO sequences (name, value) 
-                VALUES ('rental_id', 0)
-            ''')
-
-            # Set up default admin account
-            cursor.execute('''
-                INSERT OR IGNORE INTO users (username, password, role) 
-                VALUES ('admin', 'password', 'admin')
-            ''')
-            
-            conn.commit()
-    
+import csv
+import os
 
 
-
-    # User operations
-    def add_user(self, username: str, password: str, role: str) -> bool:
-        """Add a new user"""
-        try:
-            with self.get_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute(
-                    'INSERT INTO users (username, password, role) VALUES (?, ?, ?)',
-                    (username, password, role)
-                )
-                conn.commit()
-                return True
-        except sqlite3.IntegrityError:
-            return False
-    
-    def get_user(self, username: str) -> Optional[Dict[str, Any]]:
-        """Get user by username"""
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
-            row = cursor.fetchone()
-            return dict(row) if row else None
-    
-    def authenticate_user(self, username: str, password: str) -> Optional[Dict[str, Any]]:
-        """Authenticate user"""
-        user = self.get_user(username)
-        if user and user['password'] == password:
-            return user
-        return None
-    
-    # Car operations
-    def add_car(self, car_data: Dict[str, Any]) -> bool:
-        """Add a new car"""
-        try:
-            with self.get_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute('''
-                    INSERT INTO cars (car_id, make, model, year, mileage, available_now, 
-                                    min_rent_days, max_rent_days, daily_rate, fuel_type)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ''', (
-                    car_data['car_id'], car_data['make'], car_data['model'], 
-                    car_data['year'], car_data['mileage'], car_data['available_now'],
-                    car_data['min_rent_days'], car_data['max_rent_days'], 
-                    car_data['daily_rate'], car_data['fuel_type']
-                ))
-                conn.commit()
-                return True
-        except sqlite3.IntegrityError:
-            return False
-    
-    def get_car(self, car_id: str) -> Optional[Dict[str, Any]]:
-        """Get car by ID"""
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT * FROM cars WHERE car_id = ?', (car_id,))
-            row = cursor.fetchone()
-            return dict(row) if row else None
-    
-    def get_all_cars(self) -> List[Dict[str, Any]]:
-        """Get all cars"""
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT * FROM cars')
-            return [dict(row) for row in cursor.fetchall()]
-    
-    def get_available_cars(self) -> List[Dict[str, Any]]:
-        """Get available cars"""
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT * FROM cars WHERE available_now = 1')
-            return [dict(row) for row in cursor.fetchall()]
-    
-    def update_car(self, car_id: str, **kwargs) -> bool:
-        """Update car information"""
-        if not kwargs:
-            return False
-        
-        set_clause = ', '.join([f"{key} = ?" for key in kwargs.keys()])
-        values = list(kwargs.values()) + [car_id]
-        
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(f'UPDATE cars SET {set_clause} WHERE car_id = ?', values)
-            conn.commit()
-            return cursor.rowcount > 0
-    
-    def delete_car(self, car_id: str) -> bool:
-        """Delete car"""
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute('DELETE FROM cars WHERE car_id = ?', (car_id,))
-            conn.commit()
-            return cursor.rowcount > 0
-    
-    # Rental operations
-    def get_next_rental_id(self) -> str:
-        """Get next rental ID"""
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute('UPDATE sequences SET value = value + 1 WHERE name = "rental_id"')
-            cursor.execute('SELECT value FROM sequences WHERE name = "rental_id"')
-            next_id = cursor.fetchone()[0]
-            conn.commit()
-            return f"R-{next_id:03d}"
-    
-    def add_rental(self, rental_data: Dict[str, Any]) -> bool:
-        """Add a new rental"""
-        try:
-            with self.get_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute('''
-                    INSERT INTO rentals (rental_id, customer_username, car_id, start_date, 
-                                       end_date, total_cost, additional_fees, status)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                ''', (
-                    rental_data['rental_id'], rental_data['customer_username'], 
-                    rental_data['car_id'], rental_data['start_date'], 
-                    rental_data['end_date'], rental_data['total_cost'], 
-                    rental_data['additional_fees'], rental_data['status']
-                ))
-                conn.commit()
-                return True
-        except sqlite3.IntegrityError:
-            return False
-    
-    def get_rental(self, rental_id: str) -> Optional[Dict[str, Any]]:
-        """Get rental by ID"""
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT * FROM rentals WHERE rental_id = ?', (rental_id,))
-            row = cursor.fetchone()
-            return dict(row) if row else None
-    
-    def get_all_rentals(self) -> List[Dict[str, Any]]:
-        """Get all rentals"""
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT * FROM rentals')
-            return [dict(row) for row in cursor.fetchall()]
-    
-    def get_customer_rentals(self, username: str) -> List[Dict[str, Any]]:
-        """Get rentals for a specific customer"""
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT * FROM rentals WHERE customer_username = ?', (username,))
-            return [dict(row) for row in cursor.fetchall()]
-    
-    def get_rentals_by_status(self, status: str) -> List[Dict[str, Any]]:
-        """Get rentals by status"""
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT * FROM rentals WHERE status = ?', (status,))
-            return [dict(row) for row in cursor.fetchall()]
-    
-    def update_rental(self, rental_id: str, **kwargs) -> bool:
-        """Update rental information"""
-        if not kwargs:
-            return False
-        
-        set_clause = ', '.join([f"{key} = ?" for key in kwargs.keys()])
-        values = list(kwargs.values()) + [rental_id]
-        
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(f'UPDATE rentals SET {set_clause} WHERE rental_id = ?', values)
-            conn.commit()
-            return cursor.rowcount > 0
-    
-    def has_active_rental(self, car_id: str) -> bool:
-        """Check if car has active rental"""
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute('''
-                SELECT COUNT(*) FROM rentals 
-                WHERE car_id = ? AND status IN ('pending', 'approved')
-            ''', (car_id,))
-            return cursor.fetchone()[0] > 0
-        
-
-def ensure_bootstrap(csv_file = "seed_cars.csv", db_file = "car_rental.db") -> bool:
-    created = not os.path.exists(db_file)
-
-    # This will create tables and a default admin if missing — no SCHEMA needed
-    mgr = DbManager(db_path = db_file)
-
-    if created and os.path.exists(csv_file):
-        # seed cars only on first run
-        with mgr.get_connection() as conn, open(csv_file, newline = "", encoding="utf-8") as f:
-            cur = conn.cursor()
-            for r in csv.DictReader(f):
-                cur.execute(
-                    """INSERT INTO cars(
-                           car_id, make, model, year, mileage,
-                           available_now, min_rent_days, max_rent_days,
-                           daily_rate, fuel_type
-                       ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
-                    (
-                        r["car_id"], r["make"], r["model"], int(r["year"]),
-                        int(r["mileage"]), int(r["available_now"]),
-                        int(r["min_rent_days"]), int(r["max_rent_days"]),
-                        float(r["daily_rate"]), r["fuel_type"]
-                    )
-                )
-            conn.commit()
-    return created
+#Database system
+#Created three tables, aiming to store necessary data such as user login and rental records etc.
 
 
-if __name__ == "__main__":
-    ensure_bootstrap(csv_file="seed_cars.csv", db_file="car_rental.db")
+DB_NAME = 'car_rental.db'
 
+
+def connect_db():                                    #Connect to SQLite database
+    conn = sqlite3.connect(DB_NAME)
+    return conn
+
+
+def create_tables():                                 #Creating all three tables
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS vehicles (
+            car_id TEXT PRIMARY KEY,
+            make TEXT NOT NULL,
+            model TEXT NOT NULL,
+            year INTEGER NOT NULL,
+            mileage INTEGER NOT NULL,
+            available_now INTEGER NOT NULL,
+            min_rent_days INTEGER NOT NULL,
+            max_rent_days INTEGER NOT NULL,
+            daily_rate REAL NOT NULL,
+            fuel_type TEXT NOT NULL
+        )
+    ''')
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            username TEXT PRIMARY KEY,
+            password TEXT NOT NULL,
+            role TEXT NOT NULL
+        )
+    ''')
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS rentals (
+            rental_id TEXT PRIMARY KEY,
+            customer_username TEXT NOT NULL,
+            car_id TEXT NOT NULL,
+            start_date TEXT NOT NULL,
+            end_date TEXT NOT NULL,
+            total_cost REAL NOT NULL,
+            additional_fees REAL NOT NULL,
+            status TEXT NOT NULL,
+            return_date TEXT,
+            FOREIGN KEY (customer_username) REFERENCES users(username),
+            FOREIGN KEY (car_id) REFERENCES vehicles(car_id)
+        )
+    ''')
+    
+    conn.commit()
+    conn.close()
+
+#Cars operations
+def import_cars_from_csv(csv_filename):
+    conn = connect_db()
+    cur = conn.cursor()
+    with open(csv_filename, 'r', newline='', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        to_insert = []
+        for row in reader:
+            to_insert.append((
+                row['car_id'],
+                row['make'],
+                row['model'],
+                int(row['year']),
+                int(row['mileage']),
+                int(row['available_now']),
+                int(row['min_rent_days']),
+                int(row['max_rent_days']),
+                float(row['daily_rate']),
+                row['fuel_type']
+            ))
+
+    cur.executemany('''
+        INSERT INTO vehicles (car_id, make, model, year, mileage, available_now, 
+                              min_rent_days, max_rent_days, daily_rate, fuel_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', to_insert)
+    conn.commit()
+    conn.close()
+
+
+def get_all_cars_from_db():
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM vehicles')
+    rows = cur.fetchall()
+    conn.close()
+    return rows
+
+
+def get_car_by_id_from_db(car_id):
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM vehicles WHERE car_id = ?', (car_id,))
+    row = cur.fetchone()
+    conn.close()
+    return row
+
+
+def insert_car_into_db(car_data):
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute('''
+        INSERT INTO vehicles (car_id, make, model, year, mileage, available_now, 
+                              min_rent_days, max_rent_days, daily_rate, fuel_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (car_data['car_id'], car_data['make'], car_data['model'], car_data['year'],
+          car_data['mileage'], car_data['available_now'], car_data['min_rent_days'],
+          car_data['max_rent_days'], car_data['daily_rate'], car_data['fuel_type']))
+    conn.commit()
+    conn.close()
+
+
+def update_car_in_db(car_id, new_data):
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute('''
+        UPDATE vehicles
+        SET make = ?, model = ?, year = ?, mileage = ?, available_now = ?, 
+            min_rent_days = ?, max_rent_days = ?, daily_rate = ?, fuel_type = ?
+        WHERE car_id = ?
+    ''', (new_data['make'], new_data['model'], new_data['year'], new_data['mileage'],
+          new_data['available_now'], new_data['min_rent_days'], new_data['max_rent_days'],
+          new_data['daily_rate'], new_data['fuel_type'], car_id))
+    conn.commit()
+    conn.close()
+
+
+def delete_car_from_db(car_id):
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM vehicles WHERE car_id = ?', (car_id,))
+    conn.commit()
+    conn.close()
+
+
+def update_car_availability_in_db(car_id, availability_status):
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute('''
+        UPDATE vehicles
+        SET available_now = ?
+        WHERE car_id = ?
+    ''', (int(availability_status), car_id))
+    conn.commit()
+    conn.close()
+
+
+def update_car_mileage_in_db(car_id, new_mileage):
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute('''
+        UPDATE vehicles
+        SET mileage = ?
+        WHERE car_id = ?
+    ''', (new_mileage, car_id))
+    conn.commit()
+    conn.close()
+
+
+# User database operations
+def insert_user_into_db(username, password, role):
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute('''
+        INSERT INTO users (username, password, role)
+        VALUES (?, ?, ?)
+    ''', (username, password, role))
+    conn.commit()
+    conn.close()
+
+
+def get_user_from_db(username):
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM users WHERE username = ?', (username,))
+    row = cur.fetchone()
+    conn.close()
+    return row
+
+
+def get_all_users_from_db():
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM users')
+    rows = cur.fetchall()
+    conn.close()
+    return rows
+
+
+# Rental database operations
+def insert_rental_into_db(rental_data):
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute('''
+        INSERT INTO rentals (rental_id, customer_username, car_id, start_date, end_date, 
+                           total_cost, additional_fees, status, return_date)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (rental_data['rental_id'], rental_data['customer_username'], rental_data['car_id'],
+          rental_data['start_date'], rental_data['end_date'], rental_data['total_cost'],
+          rental_data['additional_fees'], rental_data['status'], rental_data['return_date']))
+    conn.commit()
+    conn.close()
+
+
+def get_all_rentals_from_db():
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM rentals')
+    rows = cur.fetchall()
+    conn.close()
+    return rows
+
+
+def get_rental_by_id_from_db(rental_id):
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM rentals WHERE rental_id = ?', (rental_id,))
+    row = cur.fetchone()
+    conn.close()
+    return row
+
+
+def get_rentals_by_customer_from_db(customer_username):
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM rentals WHERE customer_username = ?', (customer_username,))
+    rows = cur.fetchall()
+    conn.close()
+    return rows
+
+
+def get_rentals_by_status_from_db(status):
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM rentals WHERE status = ?', (status,))
+    rows = cur.fetchall()
+    conn.close()
+    return rows
+
+
+def update_rental_status_in_db(rental_id, status, return_date=None):
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute('''
+        UPDATE rentals
+        SET status = ?, return_date = ?
+        WHERE rental_id = ?
+    ''', (status, return_date, rental_id))
+    conn.commit()
+    conn.close()
