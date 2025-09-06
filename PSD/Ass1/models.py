@@ -40,7 +40,7 @@ class Admin(User):
         print("3. Update car information")
         print("4. Delete car")
         print("5. View all rental records")
-        print("6. Approve/Reject rental requests")
+        print("6. Manage rental requests")
         print("7. Logout")
         print("--------------------")
 
