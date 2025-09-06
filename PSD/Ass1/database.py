@@ -19,7 +19,7 @@ def create_tables():                                 #Creating all three tables
     conn = connect_db()
     cursor = conn.cursor()
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS vehicles (
+        CREATE TABLE IF NOT EXISTS cars (
             car_id TEXT PRIMARY KEY,
             make TEXT NOT NULL,
             model TEXT NOT NULL,
@@ -53,7 +53,7 @@ def create_tables():                                 #Creating all three tables
             status TEXT NOT NULL,
             return_date TEXT,
             FOREIGN KEY (customer_username) REFERENCES users(username),
-            FOREIGN KEY (car_id) REFERENCES vehicles(car_id)
+            FOREIGN KEY (car_id) REFERENCES cars(car_id)
         )
     ''')
     
@@ -82,7 +82,7 @@ def import_cars_from_csv(csv_filename):
             ))
 
     cur.executemany('''
-        INSERT INTO vehicles (car_id, make, model, year, mileage, available_now, 
+        INSERT INTO cars (car_id, make, model, year, mileage, available_now, 
                               min_rent_days, max_rent_days, daily_rate, fuel_type)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', to_insert)
@@ -93,7 +93,7 @@ def import_cars_from_csv(csv_filename):
 def get_all_cars_from_db():                      #return a list of all cars
     conn = connect_db()
     cur = conn.cursor()
-    cur.execute('SELECT * FROM vehicles')
+    cur.execute('SELECT * FROM cars')
     rows = cur.fetchall()
     conn.close()
     return rows
@@ -102,7 +102,7 @@ def get_all_cars_from_db():                      #return a list of all cars
 def get_car_by_id_from_db(car_id):               #return a single car accoring to its id
     conn = connect_db()
     cur = conn.cursor()
-    cur.execute('SELECT * FROM vehicles WHERE car_id = ?', (car_id,))
+    cur.execute('SELECT * FROM cars WHERE car_id = ?', (car_id,))
     row = cur.fetchone()
     conn.close()
     return row
@@ -113,7 +113,7 @@ def insert_car_into_db(car_data):
     conn = connect_db()
     cur = conn.cursor()
     cur.execute('''
-        INSERT INTO vehicles (car_id, make, model, year, mileage, available_now, 
+        INSERT INTO cars (car_id, make, model, year, mileage, available_now, 
                               min_rent_days, max_rent_days, daily_rate, fuel_type)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (car_data['car_id'], car_data['make'], car_data['model'], car_data['year'],
@@ -127,7 +127,7 @@ def update_car_in_db(car_id, new_data):
     conn = connect_db()
     cur = conn.cursor()
     cur.execute('''
-        UPDATE vehicles
+        UPDATE cars
         SET make = ?, model = ?, year = ?, mileage = ?, available_now = ?, 
             min_rent_days = ?, max_rent_days = ?, daily_rate = ?, fuel_type = ?
         WHERE car_id = ?
@@ -141,7 +141,7 @@ def update_car_in_db(car_id, new_data):
 def delete_car_from_db(car_id):
     conn = connect_db()
     cur = conn.cursor()
-    cur.execute('DELETE FROM vehicles WHERE car_id = ?', (car_id,))
+    cur.execute('DELETE FROM cars WHERE car_id = ?', (car_id,))
     conn.commit()
     conn.close()
 
@@ -150,7 +150,7 @@ def update_car_availability_in_db(car_id, availability_status):
     conn = connect_db()
     cur = conn.cursor()
     cur.execute('''
-        UPDATE vehicles
+        UPDATE cars
         SET available_now = ?
         WHERE car_id = ?
     ''', (int(availability_status), car_id))
@@ -162,7 +162,7 @@ def update_car_mileage_in_db(car_id, new_mileage):
     conn = connect_db()
     cur = conn.cursor()
     cur.execute('''
-        UPDATE vehicles
+        UPDATE cars
         SET mileage = ?
         WHERE car_id = ?
     ''', (new_mileage, car_id))
