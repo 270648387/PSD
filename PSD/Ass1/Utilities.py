@@ -38,7 +38,7 @@ def get_float_input(prompt, min_val=None, max_val=None):
         except ValueError:
             print("Invalid input: Please enter a valid number.")
 
-#Get y, n, yes, no input.
+#Get y, n, yes, no as input.
 def get_yes_no_input(prompt):
     while True:
         choice = input(prompt).lower()
