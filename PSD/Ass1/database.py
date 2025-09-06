@@ -14,6 +14,7 @@ class DbManager:
     def get_connection(self) -> sqlite3.Connection:   #get database connection
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row  
+        conn.execute("PRAGMA foreign_keys = ON")
         return conn
     
     def init_database(self):                          #initialise setup database
@@ -263,3 +264,36 @@ class DbManager:
                 WHERE car_id = ? AND status IN ('pending', 'approved')
             ''', (car_id,))
             return cursor.fetchone()[0] > 0
+        
+
+def ensure_bootstrap(csv_file = "seed_cars.csv", db_file = "car_rental.db") -> bool:
+    created = not os.path.exists(db_file)
+
+    # This will create tables and a default admin if missing — no SCHEMA needed
+    mgr = DbManager(db_path = db_file)
+
+    if created and os.path.exists(csv_file):
+        # seed cars only on first run
+        with mgr.get_connection() as conn, open(csv_file, newline = "", encoding="utf-8") as f:
+            cur = conn.cursor()
+            for r in csv.DictReader(f):
+                cur.execute(
+                    """INSERT INTO cars(
+                           car_id, make, model, year, mileage,
+                           available_now, min_rent_days, max_rent_days,
+                           daily_rate, fuel_type
+                       ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
+                    (
+                        r["car_id"], r["make"], r["model"], int(r["year"]),
+                        int(r["mileage"]), int(r["available_now"]),
+                        int(r["min_rent_days"]), int(r["max_rent_days"]),
+                        float(r["daily_rate"]), r["fuel_type"]
+                    )
+                )
+            conn.commit()
+    return created
+
+
+if __name__ == "__main__":
+    ensure_bootstrap(csv_file="seed_cars.csv", db_file="car_rental.db")
+
