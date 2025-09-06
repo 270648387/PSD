@@ -67,7 +67,7 @@ def main():
         
         #Successful log in and displaying different menu for admin and customer.
         else:
-            print(f"Welcome, {current_user.get_username()})!")
+            print(f"Welcome, {current_user.get_username()}!")
             current_user.display_menu()
 
             choice = input("Please select an option: ")
