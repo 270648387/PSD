@@ -4,7 +4,7 @@
 import abc
 from datetime import date
 
-
+#Abstraction base class
 class User(abc.ABC):
 
     def __init__(self, username, password, role):
@@ -12,7 +12,7 @@ class User(abc.ABC):
         self._password = password
         self._role = role
 
-    #  Encapsulation, add getter methods
+    #Encapsulation, adding getter methods, protected access
     def get_username(self):
         return self._username 
     
@@ -27,7 +27,7 @@ class User(abc.ABC):
         pass
 
 
-# --- Inheritance: Admin and Customer inherit from User ---
+#Inheritance: Admin and Customer inherit from User ---
 class Admin(User):
 
     def __init__(self, username, password):
@@ -49,7 +49,8 @@ class Customer(User):
 
     def __init__(self, username, password):
         super().__init__(username, password, "customer")
-
+    
+    #Polymorphism, calling same method on different objects and show different behavior
     def display_menu(self):
         print("\n--- Customer Menu ---")
         print("1. View all available cars")
@@ -61,7 +62,8 @@ class Customer(User):
 
 
 class Car:
-
+    
+    #Encapsulation with protected attributes, getter and setter methods.
     def __init__(self, car_id, make, model, year, mileage, available_now, min_rent_days, max_rent_days, daily_rate,
                  fuel_type):
         self._car_id = car_id
@@ -108,6 +110,7 @@ class Car:
     def get_fuel_type(self):
         return self._fuel_type
 
+    #Updating attributes
     def update_details(self, make, model, year, mileage, daily_rate, availability):
         self._make = make
         self._model = model
@@ -116,6 +119,7 @@ class Car:
         self._daily_rate = daily_rate
         self._available_now = availability
 
+    #Mileage can not be rolled back
     def update_mileage(self, new_mileage: int):
         if new_mileage > self._mileage:
             self._mileage = new_mileage
@@ -126,6 +130,7 @@ class Car:
                 f"Mileage: {self._mileage} km, Daily Rate: ${self._daily_rate:.2f}, Currently Available: {availability}")
 
 
+#Encapsulation to manage rental booking details
 class Rental:
     _next_id = 1
 
@@ -141,9 +146,11 @@ class Rental:
         self._end_date = end_date
         self._total_cost = total_cost
         self._additional_fees = additional_fees
-        self._status = "pending"  # Status can be: pending, approved, rejected, returned
+        self._status = "pending"               
         self._return_date = None
-
+    #Generate rental id automatically like R-001
+    
+    
     def get_rental_id(self):
         return self._rental_id
 
@@ -166,9 +173,11 @@ class Rental:
         self._status = "returned"
         self._return_date = date.today()
 
+    # Status can be: pending, approved, rejected, returned
     def get_status(self):
         return self._status
-
+    
+    #Example :Rental id :R-001, Customer: test, Car id: Car-001 etc
     def get_details(self):
         return_info = f", Return Date: {self._return_date}" if self._return_date else ""
         return (f"Rental ID: {self._rental_id}, Customer: {self._customer_username}, "
