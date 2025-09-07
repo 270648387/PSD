@@ -1,4 +1,0 @@
-# Project Python dependencies
-
-# This project only uses the Python standard library, no external packages are required.
-
