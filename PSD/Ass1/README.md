@@ -15,6 +15,7 @@
   - system.py: Core business logic, including management of users, vehicles, and rentals.
   - models.py: Defines all classes (User, Admin, Customer, Car, Rental), demonstrating object-oriented design.
   - utilities.py: Contains various utility functions, such as input validation and screen clearing.
+  - database.py: Provides an interface for all database operations using SQLite.
   - seed_cars.csv: CSV file containing initial vehicle data.
   - requirements.txt: Lists all project dependencies.
   
