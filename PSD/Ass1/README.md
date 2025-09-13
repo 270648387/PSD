@@ -23,7 +23,7 @@
   A default administrator is created when the project starts.
     Default credentials:
       Username: admin
-      Password: admin123
+      Password: password
 
   A test user is created when doing test runs.
     Test user credentials:
