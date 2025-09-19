@@ -1,0 +1,22 @@
+# Cursor AI Rules for this workspace
+
+## Language Preference
+- Always use English only
+- No Chinese characters anywhere in code, comments, strings, or documentation
+- All variable names, function names, and text content must be in English
+- When explaining concepts or writing documentation, use English only
+
+## Code Style
+- Use clear, descriptive English names for variables and functions
+- Write comments in English
+- Error messages and user-facing text in English
+- Documentation and README files in English
+
+## Examples
+✅ Good: `def calculate_transport_cost()`
+❌ Bad: `def 计算运输成本()`
+
+✅ Good: `# Calculate the total cost`
+❌ Bad: `# 计算总成本`
+
+
