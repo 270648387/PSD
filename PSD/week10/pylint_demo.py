@@ -1,5 +1,5 @@
 """A simple Object-Oriented Python project that reads either a string or a list
-#then calculates the total length and the numer of uppercase characters"""
+then calculates the total length and the numer of uppercase characters"""
 
 class TextAnalyzer:
     """Analyzes a string to find its total length and number of uppercase characters"""
@@ -7,7 +7,8 @@ class TextAnalyzer:
         self.text = text
 
     def analyze(self):
-        """Return the total length and number of uppercase characters in the string"""
+        """Return the total length and number of uppercase characters in the string
+        Return digits count and special character count"""
         total_length = len(self.text)
         uppercase_count = sum(1 for c in self.text if c.isupper())
         digit_count = sum(1 for c in self.text if c.isdigit())
